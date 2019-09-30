@@ -1,0 +1,95 @@
+package parserMiniJava;
+
+import java_cup.runtime.*;
+import miniJava.*;
+import java.util.*;
+
+parser code {:
+	
+    public void syntax_error(Symbol s){
+        System.err.println("\n\nSyntax Error - line: " +  (s.left+1) +  " - value:" + s.value);
+        
+    }
+
+
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception {    
+         System.err.println("\n\nUnrecovered Syntax error line: " +  (s.left+1) +  " - value:" + s.value);
+    }
+                                 	
+:}
+
+
+
+terminal PLUS;
+terminal LPARENT;
+terminal RPARENT;
+terminal LBRACE;
+terminal RBRACE;
+terminal SEMICOLON;
+terminal EQUAL;
+terminal INT;
+terminal RETURN;
+terminal IF;
+terminal ELSE;
+terminal WHILE;
+  
+
+terminal Integer INTEGER;
+terminal String ID;                
+                
+
+non terminal Program program;
+non terminal Expression exp;
+non terminal Statement statement;
+non terminal LinkedList<Statement> statements;
+non terminal Type type;
+
+
+precedence left PLUS;
+precedence left LPARENT, RPARENT;
+
+
+start with program;
+
+      
+program ::= type:t ID:name LPARENT RPARENT LBRACE statements:stmts RBRACE {: Program p = new Program(t,name,stmts);
+                                              RESULT = p; :}
+              ;
+
+type ::= INT
+      ;
+
+statement ::= ID:v EQUAL exp:e SEMICOLON {: Statement s = new Assign(v,e);
+                                  RESULT = s;
+                                :} 
+             |  RETURN exp:e SEMICOLON {: Statement s = new Return(e);
+                                  RESULT = s;
+                                :}
+             |  IF LPARENT exp:e RPARENT LBRACE statements:stmtsThen RBRACE ELSE LBRACE statements:stmtsElse RBRACE{: Statement s = new Conditional(e,stmtsThen,stmtsElse);
+                                  RESULT = s;
+                                :} 
+             |  WHILE LPARENT exp:e RPARENT LBRACE statements:stmts RBRACE {: Statement s = new Iterative(e,stmts);
+                                  RESULT = s;
+                                :} 
+          ;
+
+statements ::= statement:stmt {: LinkedList<Statement> listStatements = new LinkedList<Statement>();
+                                  listStatements.add(stmt);
+                                  RESULT = listStatements;
+                              :} 
+              | statement:stmt statements:listStatements {: listStatements.add(stmt);
+                                        RESULT = listStatements;
+                                    :}
+
+          ;
+
+exp ::= ID:v {: Expression e = new Var(v);
+                RESULT = e; 
+              :}
+      | INTEGER:i  {: Expression e = new IntLiteral(i); 
+                        RESULT = e;
+                     :} 
+      | exp:e1 PLUS exp:e2  {: Expression e = new Add(e1,e2); 
+                        RESULT = e;
+                     :} 
+      ; 

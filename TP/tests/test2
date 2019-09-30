@@ -1,0 +1,14 @@
+integer sums(){
+	i = 1;
+	sum = 0;
+	while (n) {
+		sum = 0;
+		j = 1;
+		while (j) {
+			sum = sum + j;
+			j = j + 1;
+		}
+		i = i + 1;
+	}
+	return sum;
+}

@@ -1,0 +1,139 @@
+<project name="TP" default="jar" basedir=".">
+  <property name="cupProgram"     location="src/parserMiniJava/cup" />
+  <property name="jflexProgram"   location="src/parserMiniJava/jflex"/>
+  <property name="src"     location="src"     />
+  <property name="java"    location="java"    />
+  <property name="classes" location="classes" />
+  <property name="dist"    location="jar"    />
+  <property name="lib"     location="lib"     />
+  <property name="bin"     location="bin"     />
+  <property name="java.staticAnalysis"     location="java/staticAnalysis"/>
+  <property name="java.parserMiniJava"     location="java/parserMiniJava"/>
+  <property name="java.miniJava"     location="java/miniJava"/>
+  <property name="jar.file"       location="${dist}/${ant.project.name}.jar"/>
+  <property name="jar.main.class" value="staticAnalysis.MainClass"/>
+  <property environment="env" />
+
+  <!-- We rely on CUP-11a  JFlex 1.4.1  -->
+  
+  <!-- Here compile time tools -->
+  <path id="binaries">
+    <pathelement location="${bin}" />
+    <fileset dir="${bin}">
+      <include name="**/*.jar" />
+      <include name="**/*.zip" />
+    </fileset>
+    <pathelement path="${java.class.path}" />
+    <pathelement path="${classes}" />
+  </path>
+  
+  <!-- Here, the runtime libraries are stored -->
+  <path id="libraries">
+    <pathelement location="${lib}" />
+    <fileset dir="${lib}">
+      <include name="**/*.jar" />
+      <include name="**/*.so" />
+      <include name="**/*.dylib" />
+      <include name="**/*.zip" />
+    </fileset>
+    <pathelement path="${java.class.path}" />
+  </path>
+
+  <!-- We also use JFlex -->
+  <taskdef name="jflex" 
+           classname="JFlex.anttask.JFlexTask" 
+           classpath="${lib}/JFlex.jar" 
+  />
+   
+  <!-- We also use CUP-11a -->
+  <taskdef name="cup" 
+           classname="java_cup.anttask.CUPTask" 
+           classpath="${lib}/java-cup-11a.jar"
+  />
+
+  <target name="init">
+    <mkdir dir="${classes}"/>
+    <mkdir dir="${java}"/>
+    <mkdir dir="${dist}"/>
+    <mkdir dir="${java.staticAnalysis}"/>
+    <mkdir dir="${java.miniJava}"/>
+      
+    <copy todir="${java.miniJava}">
+          <fileset dir="src/miniJava" includes="**.java"/>
+    </copy>
+    <copy todir="${java.staticAnalysis}">
+          <fileset dir="src/staticAnalysis" includes="**.java"/>
+    </copy> 
+  </target>
+
+
+  <target name="cup" depends="init">
+    <cup srcfile="${cupProgram}/ParserMiniJava.cup"
+         destdir="${java}" 
+         interface="true"
+	     parser="parserMiniJava"
+         symbols="symMiniJava"
+    />
+
+  </target>
+
+  <target name="jflex" depends="init">
+    <jflex file="${jflexProgram}/scanner.jflex" destdir="${java}" />
+  </target>
+  
+  <!-- copy manual edited sources to automatically generated ones -->
+  <target name="copy_src" depends="jflex,cup">
+        <copy todir="${java}">
+            <fileset dir="${src}" includes="**.java" />
+        </copy>
+  </target>
+    
+ <target name="compile" depends="copy_src">
+    <javac includeantruntime="false" srcdir="${java}" destdir="${classes}" debug="true">
+      <classpath refid="libraries" />
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile" description="Build jar file">
+      <manifestclasspath property="jar.classpath" jarfile="${jar.file}">
+          <classpath>
+              <fileset dir="${dist}" includes="*.jar"/>
+          </classpath>
+      </manifestclasspath>
+      
+    <jar jarfile="${jar.file}" basedir="${classes}">
+     <manifest>
+         <attribute name="Main-Class" value="${jar.main.class}" />
+         <!-- JavaBDD and CUP runtime is needed for parsing! -->
+         <attribute name="Class-Path" value="${jar.classpath}" />
+     </manifest>
+        <zipgroupfileset dir="${lib}" includes="**/**.jar" />
+        <fileset dir="${lib}" includes="**/**.dylib"/>
+        <fileset dir="${lib}" includes="**/**.so"/>
+    </jar>
+    
+    <!-- Thrid party libraries can only be found by java -jar if they reside in the same dir
+    <copy todir="${dist}">
+	<fileset dir="${lib}" includes="**/**.jar"/>
+        
+    </copy>-->
+    </target>
+    
+    
+  <!-- Test the parser in a single run -->
+  <target name="runTests" depends="jar">
+    <java jar="${jar.file}" fork="true">
+     <arg value="tests/test1" />
+      <arg value="tests/test2" />
+    </java>
+  </target>
+
+   
+  <target name="clean">
+    <delete dir="${java}" />
+    <delete dir="${classes}" />
+    <delete dir="${dist}" />
+  </target>
+
+  
+</project>
