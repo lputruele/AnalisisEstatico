@@ -80,9 +80,16 @@
   <target name="jflex" depends="init">
     <jflex file="${jflexProgram}/scanner.jflex" destdir="${java}" />
   </target>
+  
+  <!-- copy manual edited sources to automatically generated ones -->
+  <target name="copy_src" depends="jflex,cup">
+        <copy todir="${java}">
+            <fileset dir="${src}" includes="**.java" />
+        </copy>
+  </target>
     
- <target name="compile">
-    <javac includeantruntime="false" srcdir="${src}" destdir="${classes}" debug="true">
+ <target name="compile" depends="copy_src">
+    <javac includeantruntime="false" srcdir="${java}" destdir="${classes}" debug="true">
       <classpath refid="libraries" />
     </javac>
   </target>
