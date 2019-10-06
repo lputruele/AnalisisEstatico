@@ -1,6 +1,7 @@
 package miniJava;
 
 import java.util.LinkedList;
+import java.util.List;
 
 
 
@@ -16,4 +17,12 @@ public class Program{
 		this.id = id;
 		this.statements = stmts;
 	}
+	
+	/**
+	 * Get the program statements
+	 */
+	public List<Statement> getStatements() {
+		return statements;
+	}
+	
 }

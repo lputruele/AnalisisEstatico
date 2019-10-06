@@ -1,6 +1,7 @@
 package miniJava;
 
 import java.util.LinkedList;
+import java.util.List;
 
 
 public class Iterative implements Statement{
@@ -13,4 +14,12 @@ public class Iterative implements Statement{
 		this.cond = exp;
 		this.doBlock = doB;
 	}
+	
+	/**
+	 * Get do block
+	 */
+	public List<Statement> getDoBlock() {
+		return doBlock;
+	}
+	
 }
