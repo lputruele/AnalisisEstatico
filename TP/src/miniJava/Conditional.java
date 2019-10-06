@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public class Conditional implements Statement{
+public class Conditional extends Statement{
 
 	Expression cond;
 	LinkedList<Statement> thenBlock;
@@ -29,5 +29,10 @@ public class Conditional implements Statement{
 	 */
 	public List<Statement> getElseBlock() {
 		return elseBlock;
+	}
+
+	@Override
+	public boolean isControlTransferStatement() {
+		return true;
 	}
 }

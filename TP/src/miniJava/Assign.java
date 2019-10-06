@@ -1,7 +1,7 @@
 package miniJava;
 
 
-public class Assign implements Statement{
+public class Assign extends Statement{
 
 	String var;
 	Expression exp;
@@ -11,4 +11,10 @@ public class Assign implements Statement{
 		this.var = id;
 		this.exp = exp;
 	}
+
+	@Override
+	public boolean isControlTransferStatement() {
+		return false;
+	}
+	
 }

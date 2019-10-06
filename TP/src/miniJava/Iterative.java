@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public class Iterative implements Statement{
+public class Iterative extends Statement{
 
 	Expression cond;
 	LinkedList<Statement> doBlock;
@@ -20,6 +20,11 @@ public class Iterative implements Statement{
 	 */
 	public List<Statement> getDoBlock() {
 		return doBlock;
+	}
+
+	@Override
+	public boolean isControlTransferStatement() {
+		return true;
 	}
 	
 }

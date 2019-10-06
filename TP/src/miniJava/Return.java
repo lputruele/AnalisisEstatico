@@ -1,12 +1,18 @@
 package miniJava;
 
 
-public class Return implements Statement{
+public class Return extends Statement{
 
 	Expression exp;
-
 
 	public Return(Expression exp){
 		this.exp = exp;
 	}
+
+
+	@Override
+	public boolean isControlTransferStatement() {
+		return false;
+	}
+	
 }
