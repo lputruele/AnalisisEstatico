@@ -28,7 +28,7 @@ public class ProgramParser {
             // Read file
             parser = new parserMiniJava(new scannerMiniJava(programFile));
             Program program = (Program)parser.parse().value;
-            
+            return program;
 
         } catch (Exception e) {         
             System.out.println("Program Error." + e.getMessage());
