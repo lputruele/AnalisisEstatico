@@ -35,4 +35,9 @@ public class Conditional extends Statement{
 	public boolean isControlTransferStatement() {
 		return true;
 	}
+
+	@Override
+	public String toString(){
+		return "if (" + cond.toString() + ") {\n"+ thenBlock.toString() + "}else{\n" + elseBlock.toString() + "}\n";
+	}
 }

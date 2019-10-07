@@ -24,5 +24,10 @@ public class Program{
 	public List<Statement> getStatements() {
 		return statements;
 	}
+
+	@Override
+	public String toString(){
+		return id + " " +statements.toString();
+	}
 	
 }

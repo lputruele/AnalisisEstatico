@@ -11,4 +11,9 @@ public class Add implements Expression{
 		this.exp1 = e1;
 		this.exp2 = e2;
 	}
+
+	@Override
+	public String toString(){
+		return exp1.toString() + " + " + exp2.toString();
+	}
 }

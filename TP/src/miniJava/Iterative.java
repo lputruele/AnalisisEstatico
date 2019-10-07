@@ -26,5 +26,10 @@ public class Iterative extends Statement{
 	public boolean isControlTransferStatement() {
 		return true;
 	}
+
+	@Override
+	public String toString(){
+		return "while (" + cond.toString() + ") {\n"+ doBlock.toString() + "}\n";
+	}
 	
 }

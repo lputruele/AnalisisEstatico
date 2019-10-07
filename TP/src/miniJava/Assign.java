@@ -16,5 +16,10 @@ public class Assign extends Statement{
 	public boolean isControlTransferStatement() {
 		return false;
 	}
+
+	@Override
+	public String toString(){
+		return var + " = " + exp.toString();
+	}
 	
 }

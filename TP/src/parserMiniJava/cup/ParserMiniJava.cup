@@ -77,7 +77,7 @@ statements ::= statement:stmt {: LinkedList<Statement> listStatements = new Link
                                   listStatements.add(stmt);
                                   RESULT = listStatements;
                               :} 
-              | statement:stmt statements:listStatements {: listStatements.add(stmt);
+              | statements:listStatements statement:stmt {: listStatements.add(stmt);
                                         RESULT = listStatements;
                                     :}
 

@@ -9,4 +9,9 @@ public class Var implements Expression{
 	public Var(String id){
 		this.label = id;
 	}
+
+	@Override
+	public String toString(){
+		return label;
+	}
 }

@@ -9,4 +9,9 @@ public class IntLiteral implements Expression{
 	public IntLiteral(Integer i){
 		this.value = i;
 	}
+
+	@Override
+	public String toString(){
+		return value.toString();
+	}
 }

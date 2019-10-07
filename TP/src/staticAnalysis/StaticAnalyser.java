@@ -13,11 +13,12 @@ public class StaticAnalyser {
   public StaticAnalyser(Program p){
    if (p==null)
       throw new IllegalArgumentException("The program can't be null");
+   System.out.println(p);
    cfg = new ControlFlowGraph(p);
   }
  
   public void doSomething(){
-	 
+	   
   }
   
 }
