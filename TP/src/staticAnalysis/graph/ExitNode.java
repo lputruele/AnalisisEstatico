@@ -10,6 +10,7 @@ public class ExitNode extends ControlFlowGraphNode {
   private static ExitNode single_instance = null;
 
   private ExitNode() {
+    id = "Exit";
   }
 
   public static ExitNode getExit() {
@@ -18,4 +19,8 @@ public class ExitNode extends ControlFlowGraphNode {
     return single_instance;
   }
 
+  @Override
+  public String toString() {
+    return "[" + id + "]";
+  }
 }

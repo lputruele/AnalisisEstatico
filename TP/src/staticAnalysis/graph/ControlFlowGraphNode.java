@@ -7,4 +7,13 @@ package staticAnalysis.graph;
  */
 public abstract class ControlFlowGraphNode {
 
+  protected String id;
+
+  /**
+   * Get id
+   */
+  public String getId() {
+    return id;
+  }
+
 }

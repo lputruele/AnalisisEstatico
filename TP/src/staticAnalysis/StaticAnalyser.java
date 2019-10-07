@@ -1,24 +1,24 @@
 package staticAnalysis;
 
-import miniJava.*;
+import miniJava.Program;
 import staticAnalysis.graph.ControlFlowGraph;
 
 /**
  * This class represents the compiler.
  */
 public class StaticAnalyser {
-	   
+
   private ControlFlowGraph cfg;
-  
-  public StaticAnalyser(Program p){
-   if (p==null)
+
+  public StaticAnalyser(Program p) {
+    if (p == null)
       throw new IllegalArgumentException("The program can't be null");
-   System.out.println(p);
-   cfg = new ControlFlowGraph(p);
+    cfg = new ControlFlowGraph(p);
+    cfg.export();
   }
- 
-  public void doSomething(){
-	   
+
+  public void doSomething() {
+
   }
-  
+
 }
