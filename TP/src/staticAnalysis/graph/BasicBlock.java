@@ -3,8 +3,6 @@ package staticAnalysis.graph;
 import java.util.ArrayList;
 import java.util.List;
 
-import miniJava.Conditional;
-import miniJava.Iterative;
 import miniJava.Statement;
 
 /**
@@ -14,7 +12,7 @@ import miniJava.Statement;
  * 
  * @author fmolina
  */
-public class BasicBlock {
+public class BasicBlock extends ControlFlowGraphNode {
 
 	private List<Statement> statements; // Program statements that are part of the block
 	
@@ -29,9 +27,16 @@ public class BasicBlock {
 	 * Add an statement to the building block
 	 */
 	public void addStatement(Statement stmt) {
-		if (stmt==null||stmt instanceof Conditional||stmt instanceof Iterative)
+		if (stmt==null||stmt.isControlTransferStatement())
 			throw new IllegalArgumentException("Invalid statement");
 		statements.add(stmt);
+	}
+	
+	/**
+	 * Get statements
+	 */
+	public List<Statement> getStatements() {
+		return statements;
 	}
 	
 }
