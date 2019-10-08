@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.jgrapht.ext.DOTExporter;
 import org.jgrapht.ext.VertexNameProvider;
@@ -267,6 +268,30 @@ public class ControlFlowGraph {
       i++;
     }
     return null;
+  }
+
+  /**
+   * Compute the set of dominators
+   */
+  public Set<ControlFlowGraphNode> computeDom() {
+    // TODO
+    return null;
+  }
+
+  /**
+   * Get the reversed Control Flow Graph
+   */
+  public ControlFlowGraph reverse() {
+    // TODO
+    return null;
+  }
+
+  /**
+   * Compute the set of postdominators
+   */
+  public Set<ControlFlowGraphNode> computePostDom() {
+    ControlFlowGraph reverse = reverse();
+    return reverse.computeDom();
   }
 
   /**
