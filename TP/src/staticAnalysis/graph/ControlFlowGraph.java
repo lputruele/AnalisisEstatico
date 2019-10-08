@@ -3,7 +3,10 @@ package staticAnalysis.graph;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.jgrapht.ext.DOTExporter;
@@ -24,6 +27,7 @@ import miniJava.Statement;
 public class ControlFlowGraph {
 
   DefaultDirectedGraph<ControlFlowGraphNode, DefaultEdge> g;
+  ControlFlowGraphNode initial;
 
   /**
    * Constructor of the Control Flow Graph from a program p
@@ -146,6 +150,7 @@ public class ControlFlowGraph {
    */
   private void buildGraph(List<BasicBlock> basicBlocks, Program p) {
     g = new DefaultDirectedGraph<ControlFlowGraphNode, DefaultEdge>(DefaultEdge.class);
+    initial = EntryNode.getEntry();
     g.addVertex(EntryNode.getEntry());
     g.addVertex(ExitNode.getExit());
     // Add node Entry -> B1
@@ -271,11 +276,65 @@ public class ControlFlowGraph {
   }
 
   /**
-   * Compute the set of dominators
+   * Compute the set of dominators of each node in the Control Flow Graph
    */
-  public Set<ControlFlowGraphNode> computeDom() {
-    // TODO
-    return null;
+  public Map<ControlFlowGraphNode, Set<ControlFlowGraphNode>> computeDom() {
+    Map<ControlFlowGraphNode, Set<ControlFlowGraphNode>> doms = new HashMap<ControlFlowGraphNode, Set<ControlFlowGraphNode>>();
+    doms.put(initial, new HashSet<ControlFlowGraphNode>());
+    // Initially, the dominators of the initial node is just the initial node
+    doms.get(initial).add(initial);
+    // Also, for each node that is not the initial one, the dominators are all the nodes
+    for (ControlFlowGraphNode node : g.vertexSet()) {
+      if (!node.equals(initial)) {
+        Set<ControlFlowGraphNode> allNodes = new HashSet<ControlFlowGraphNode>(g.vertexSet());
+        doms.put(node, allNodes);
+      }
+    }
+    boolean changeOcurred = true;
+    while (changeOcurred) {
+      changeOcurred = false;
+      for (ControlFlowGraphNode node : g.vertexSet()) {
+        if (!node.equals(initial)) {
+          // For each node that is not the initial
+          Set<ControlFlowGraphNode> currentDoms = doms.get(node);
+          Set<ControlFlowGraphNode> intersectPreds = intersectPredecessors(node, doms);
+          intersectPreds.add(node);
+          if (!currentDoms.equals(intersectPreds)) {
+            changeOcurred = true;
+            doms.put(node, intersectPreds);
+          }
+        }
+      }
+    }
+    return doms;
+  }
+
+  /**
+   * Intersects the current dominators of all the predecessors of the given node
+   */
+  private Set<ControlFlowGraphNode> intersectPredecessors(ControlFlowGraphNode node,
+      Map<ControlFlowGraphNode, Set<ControlFlowGraphNode>> doms) {
+    Set<ControlFlowGraphNode> intersection = new HashSet<ControlFlowGraphNode>();
+    Set<ControlFlowGraphNode> predecessors = getPredecessors(node);
+    if (predecessors.size() > 0) {
+      intersection = new HashSet<ControlFlowGraphNode>(doms.get(predecessors.iterator().next()));
+      for (ControlFlowGraphNode pred : predecessors) {
+        intersection.retainAll(doms.get(pred));
+      }
+    }
+    return intersection;
+  }
+
+  /**
+   * Compute the predecessors of a given node
+   */
+  private Set<ControlFlowGraphNode> getPredecessors(ControlFlowGraphNode node) {
+    Set<ControlFlowGraphNode> pred = new HashSet<ControlFlowGraphNode>();
+    for (DefaultEdge edge : g.edgeSet()) {
+      if (node.equals(g.getEdgeTarget(edge)))
+        pred.add(g.getEdgeSource(edge));
+    }
+    return pred;
   }
 
   /**
@@ -289,7 +348,7 @@ public class ControlFlowGraph {
   /**
    * Compute the set of postdominators
    */
-  public Set<ControlFlowGraphNode> computePostDom() {
+  public Map<ControlFlowGraphNode, Set<ControlFlowGraphNode>> computePostDom() {
     ControlFlowGraph reverse = reverse();
     return reverse.computeDom();
   }
