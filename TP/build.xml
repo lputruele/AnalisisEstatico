@@ -9,6 +9,7 @@
   <property name="bin"     location="bin"     />
   <property name="java.staticAnalysis"     location="java/staticAnalysis"/>
   <property name="java.staticAnalysis.graph"     location="java/staticAnalysis/graph"/>
+  <property name="java.staticAnalysis.tree"     location="java/staticAnalysis/tree"/>
   <property name="java.parserMiniJava"     location="java/parserMiniJava"/>
   <property name="java.miniJava"     location="java/miniJava"/>
   <property name="jar.file"       location="${dist}/${ant.project.name}.jar"/>
@@ -58,6 +59,7 @@
     <mkdir dir="${dist}"/>
     <mkdir dir="${java.staticAnalysis}"/>
     <mkdir dir="${java.staticAnalysis.graph}"/>
+    <mkdir dir="${java.staticAnalysis.tree}"/>
     <mkdir dir="${java.miniJava}"/>
       
     <copy todir="${java.miniJava}">
@@ -68,6 +70,9 @@
     </copy>
     <copy todir="${java.staticAnalysis.graph}">
           <fileset dir="src/staticAnalysis/graph" includes="**.java"/>
+    </copy> 
+    <copy todir="${java.staticAnalysis.tree}">
+          <fileset dir="src/staticAnalysis/tree" includes="**.java"/>
     </copy> 
   </target>
 

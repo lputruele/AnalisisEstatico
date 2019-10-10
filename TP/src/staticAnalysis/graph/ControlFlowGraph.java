@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +19,7 @@ import miniJava.Conditional;
 import miniJava.Iterative;
 import miniJava.Program;
 import miniJava.Statement;
+import staticAnalysis.tree.Tree;
 
 /**
  * This class represents the Control Flow Graph
@@ -28,6 +30,7 @@ public class ControlFlowGraph {
 
   DefaultDirectedGraph<ControlFlowGraphNode, DefaultEdge> g;
   ControlFlowGraphNode initial;
+
   /**
    * Constructor of the Control Flow Graph
    */
@@ -42,10 +45,6 @@ public class ControlFlowGraph {
     g = new DefaultDirectedGraph<ControlFlowGraphNode, DefaultEdge>(DefaultEdge.class);
     List<BasicBlock> basicBlocks = getBasicBlocks(p);
     buildGraph(basicBlocks, p);
-  }
-
-  public DefaultDirectedGraph<ControlFlowGraphNode, DefaultEdge> getG(){
-    return g;
   }
 
   /**
@@ -160,13 +159,13 @@ public class ControlFlowGraph {
    * Build the Control Flow Graph from the program basic blocks
    */
   private void buildGraph(List<BasicBlock> basicBlocks, Program p) {
-    initial = EntryNode.getEntry();
-    g.addVertex(EntryNode.getEntry());
-    g.addVertex(ExitNode.getExit());
+    initial = EntryNode.get();
+    g.addVertex(EntryNode.get());
+    g.addVertex(ExitNode.get());
     // Add node Entry -> B1
     ControlFlowGraphNode entryBlock = basicBlocks.get(0);
     g.addVertex(entryBlock);
-    g.addEdge(EntryNode.getEntry(), entryBlock);
+    g.addEdge(EntryNode.get(), entryBlock);
     // Add nodes Bi -> Bj if and only if Bj can immediately follow Bi in some execution
     for (int i = 0; i < basicBlocks.size(); i++) {
       BasicBlock blockI = basicBlocks.get(i);
@@ -188,7 +187,7 @@ public class ControlFlowGraph {
       }
       if (!atLeastOneFollower) {
         // BlockI must go to the exit, i.e., Bi -> Exit
-        g.addEdge(blockI, ExitNode.getExit());
+        g.addEdge(blockI, ExitNode.get());
       }
     }
     System.out.println("Vertexs: " + g.vertexSet().size());
@@ -352,11 +351,12 @@ public class ControlFlowGraph {
    */
   public ControlFlowGraph reverse() {
     ControlFlowGraph reversedCfg = new ControlFlowGraph();
-    for (ControlFlowGraphNode v : g.vertexSet()){
-      reversedCfg.getG().addVertex(v);
+    reversedCfg.initial = ExitNode.get();
+    for (ControlFlowGraphNode v : g.vertexSet()) {
+      reversedCfg.g.addVertex(v);
     }
     for (DefaultEdge edge : g.edgeSet()) {
-      reversedCfg.getG().addEdge(g.getEdgeTarget(edge), g.getEdgeSource(edge));
+      reversedCfg.g.addEdge(g.getEdgeTarget(edge), g.getEdgeSource(edge));
     }
     return reversedCfg;
   }
@@ -367,6 +367,41 @@ public class ControlFlowGraph {
   public Map<ControlFlowGraphNode, Set<ControlFlowGraphNode>> computePostDom() {
     ControlFlowGraph reverse = reverse();
     return reverse.computeDom();
+  }
+
+  /**
+   * Compute the postdominators tree
+   */
+  public Tree<ControlFlowGraphNode> computePostDominatorsTree() {
+    ControlFlowGraph reverse = reverse();
+    Map<ControlFlowGraphNode, Set<ControlFlowGraphNode>> postDoms = reverse.computeDom();
+    Tree<ControlFlowGraphNode> postDomTree = new Tree<ControlFlowGraphNode>(reverse.initial);
+    LinkedList<ControlFlowGraphNode> queue = new LinkedList<ControlFlowGraphNode>();
+    // Enqueue the initial node
+    queue.addLast(reverse.initial);
+    // Remove each node from the dominators of itself
+    for (ControlFlowGraphNode node : reverse.g.vertexSet()) {
+      Set<ControlFlowGraphNode> nodeDoms = postDoms.get(node);
+      nodeDoms.remove(node);
+      postDoms.put(node, nodeDoms);
+    }
+    while (!queue.isEmpty()) {
+      ControlFlowGraphNode current = queue.removeFirst();
+      for (ControlFlowGraphNode node : reverse.g.vertexSet()) {
+        // For each node in such that the dominators set is not empty
+        Set<ControlFlowGraphNode> nodeDoms = postDoms.get(node);
+        if (!nodeDoms.isEmpty()) {
+          if (nodeDoms.contains(current)) {
+            nodeDoms.remove(current);
+            if (nodeDoms.isEmpty()) {
+              postDomTree.addChild(current, node);
+              queue.addLast(node);
+            }
+          }
+        }
+      }
+    }
+    return postDomTree;
   }
 
   /**
@@ -388,7 +423,7 @@ public class ControlFlowGraph {
           vertexIdProvider, vertexLabelProvider, null);
       exporter.export(new FileWriter("cfg.dot"), g);
     } catch (IOException e) {
-      System.out.println("Unable to compute graph");
+      System.out.println("Unable to export graph");
     }
   }
 }

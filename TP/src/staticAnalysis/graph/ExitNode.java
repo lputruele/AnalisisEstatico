@@ -13,7 +13,7 @@ public class ExitNode extends ControlFlowGraphNode {
     id = "Exit";
   }
 
-  public static ExitNode getExit() {
+  public static ExitNode get() {
     if (single_instance == null)
       single_instance = new ExitNode();
     return single_instance;

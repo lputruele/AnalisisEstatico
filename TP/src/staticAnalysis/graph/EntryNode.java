@@ -13,7 +13,7 @@ public class EntryNode extends ControlFlowGraphNode {
     id = "Entry";
   }
 
-  public static EntryNode getEntry() {
+  public static EntryNode get() {
     if (single_instance == null)
       single_instance = new EntryNode();
     return single_instance;
