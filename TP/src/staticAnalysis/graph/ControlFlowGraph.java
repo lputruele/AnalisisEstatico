@@ -28,13 +28,24 @@ public class ControlFlowGraph {
 
   DefaultDirectedGraph<ControlFlowGraphNode, DefaultEdge> g;
   ControlFlowGraphNode initial;
+  /**
+   * Constructor of the Control Flow Graph
+   */
+  public ControlFlowGraph() {
+    g = new DefaultDirectedGraph<ControlFlowGraphNode, DefaultEdge>(DefaultEdge.class);
+  }
 
   /**
    * Constructor of the Control Flow Graph from a program p
    */
   public ControlFlowGraph(Program p) {
+    g = new DefaultDirectedGraph<ControlFlowGraphNode, DefaultEdge>(DefaultEdge.class);
     List<BasicBlock> basicBlocks = getBasicBlocks(p);
     buildGraph(basicBlocks, p);
+  }
+
+  public DefaultDirectedGraph<ControlFlowGraphNode, DefaultEdge> getG(){
+    return g;
   }
 
   /**
@@ -149,7 +160,6 @@ public class ControlFlowGraph {
    * Build the Control Flow Graph from the program basic blocks
    */
   private void buildGraph(List<BasicBlock> basicBlocks, Program p) {
-    g = new DefaultDirectedGraph<ControlFlowGraphNode, DefaultEdge>(DefaultEdge.class);
     initial = EntryNode.getEntry();
     g.addVertex(EntryNode.getEntry());
     g.addVertex(ExitNode.getExit());
@@ -341,8 +351,14 @@ public class ControlFlowGraph {
    * Get the reversed Control Flow Graph
    */
   public ControlFlowGraph reverse() {
-    // TODO
-    return null;
+    ControlFlowGraph reversedCfg = new ControlFlowGraph();
+    for (ControlFlowGraphNode v : g.vertexSet()){
+      reversedCfg.getG().addVertex(v);
+    }
+    for (DefaultEdge edge : g.edgeSet()) {
+      reversedCfg.getG().addEdge(g.getEdgeTarget(edge), g.getEdgeSource(edge));
+    }
+    return reversedCfg;
   }
 
   /**
