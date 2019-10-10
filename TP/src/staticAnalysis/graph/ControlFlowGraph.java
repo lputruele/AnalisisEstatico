@@ -11,9 +11,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jgrapht.ext.DOTExporter;
+import org.jgrapht.ext.EdgeNameProvider;
 import org.jgrapht.ext.VertexNameProvider;
 import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
 
 import miniJava.Conditional;
 import miniJava.Iterative;
@@ -28,21 +28,23 @@ import staticAnalysis.tree.Tree;
  */
 public class ControlFlowGraph {
 
-  DefaultDirectedGraph<ControlFlowGraphNode, DefaultEdge> g;
+  DefaultDirectedGraph<ControlFlowGraphNode, LabeledEdge> g;
   ControlFlowGraphNode initial;
+  private static final String TRUE_LABEL = "T";
+  private static final String FALSE_LABEL = "F";
 
   /**
    * Constructor of the Control Flow Graph
    */
   public ControlFlowGraph() {
-    g = new DefaultDirectedGraph<ControlFlowGraphNode, DefaultEdge>(DefaultEdge.class);
+    g = new DefaultDirectedGraph<ControlFlowGraphNode, LabeledEdge>(LabeledEdge.class);
   }
 
   /**
    * Constructor of the Control Flow Graph from a program p
    */
   public ControlFlowGraph(Program p) {
-    g = new DefaultDirectedGraph<ControlFlowGraphNode, DefaultEdge>(DefaultEdge.class);
+    g = new DefaultDirectedGraph<ControlFlowGraphNode, LabeledEdge>(LabeledEdge.class);
     List<BasicBlock> basicBlocks = getBasicBlocks(p);
     buildGraph(basicBlocks, p);
   }
@@ -182,7 +184,10 @@ public class ControlFlowGraph {
         Statement fstStmtBlockJ = blockJ.getStatements().get(0);
         if (followsImmediately(lastStmtBlockI, fstStmtBlockJ, p)) {
           atLeastOneFollower = true;
-          g.addEdge(blockI, blockJ);
+          LabeledEdge edge = new LabeledEdge();
+          if (lastStmtBlockI.isControlTransferStatement())
+            edge = new LabeledEdge(getLabel(lastStmtBlockI, fstStmtBlockJ));
+          g.addEdge(blockI, blockJ, edge);
         }
       }
       if (!atLeastOneFollower) {
@@ -192,6 +197,20 @@ public class ControlFlowGraph {
     }
     System.out.println("Vertexs: " + g.vertexSet().size());
     System.out.println("Edges: " + g.edgeSet().size());
+  }
+
+  /**
+   * Determine the label to be used in the graph
+   */
+  private String getLabel(Statement controlStmt, Statement stmt) {
+    if (controlStmt instanceof Conditional) {
+      Conditional c = (Conditional) controlStmt;
+      return c.getThenBlock().contains(stmt) ? TRUE_LABEL : FALSE_LABEL;
+    } else if (controlStmt instanceof Iterative) {
+      Iterative it = (Iterative) controlStmt;
+      return it.getDoBlock().contains(stmt) ? TRUE_LABEL : FALSE_LABEL;
+    }
+    return null;
   }
 
   /**
@@ -339,7 +358,7 @@ public class ControlFlowGraph {
    */
   private Set<ControlFlowGraphNode> getPredecessors(ControlFlowGraphNode node) {
     Set<ControlFlowGraphNode> pred = new HashSet<ControlFlowGraphNode>();
-    for (DefaultEdge edge : g.edgeSet()) {
+    for (LabeledEdge edge : g.edgeSet()) {
       if (node.equals(g.getEdgeTarget(edge)))
         pred.add(g.getEdgeSource(edge));
     }
@@ -355,7 +374,7 @@ public class ControlFlowGraph {
     for (ControlFlowGraphNode v : g.vertexSet()) {
       reversedCfg.g.addVertex(v);
     }
-    for (DefaultEdge edge : g.edgeSet()) {
+    for (LabeledEdge edge : g.edgeSet()) {
       reversedCfg.g.addEdge(g.getEdgeTarget(edge), g.getEdgeSource(edge));
     }
     return reversedCfg;
@@ -419,8 +438,13 @@ public class ControlFlowGraph {
           return cfgn.toString();
         }
       };
-      DOTExporter<ControlFlowGraphNode, DefaultEdge> exporter = new DOTExporter<ControlFlowGraphNode, DefaultEdge>(
-          vertexIdProvider, vertexLabelProvider, null);
+      EdgeNameProvider<LabeledEdge> edgeLabelProvider = new EdgeNameProvider<LabeledEdge>() {
+        public String getEdgeName(LabeledEdge edge) {
+          return edge.getLabel();
+        }
+      };
+      DOTExporter<ControlFlowGraphNode, LabeledEdge> exporter = new DOTExporter<ControlFlowGraphNode, LabeledEdge>(
+          vertexIdProvider, vertexLabelProvider, edgeLabelProvider);
       exporter.export(new FileWriter("cfg.dot"), g);
     } catch (IOException e) {
       System.out.println("Unable to export graph");
