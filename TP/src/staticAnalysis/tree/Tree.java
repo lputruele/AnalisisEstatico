@@ -7,6 +7,8 @@ import org.jgrapht.ext.DOTExporter;
 import org.jgrapht.ext.VertexNameProvider;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
+import java.util.List;
+import java.util.LinkedList;
 
 /**
  * Generic class that implements a Tree
@@ -18,6 +20,7 @@ public class Tree<E> {
   private Node<E> root;
   private DefaultDirectedGraph<Node<E>, DefaultEdge> t;
   private int size = 0;
+  private List<E> markedNodes;
 
   /**
    * Constructor
@@ -25,6 +28,7 @@ public class Tree<E> {
   public Tree() {
     root = null;
     t = new DefaultDirectedGraph<Node<E>, DefaultEdge>(DefaultEdge.class);
+    markedNodes = new LinkedList<E>();
   }
 
   /**
@@ -36,6 +40,7 @@ public class Tree<E> {
     size++;
     t = new DefaultDirectedGraph<Node<E>, DefaultEdge>(DefaultEdge.class);
     t.addVertex(this.root);
+    markedNodes = new LinkedList<E>();
   }
 
   public boolean contains(E value) {
@@ -75,6 +80,7 @@ public class Tree<E> {
       t.addVertex(node2);
       size++;
     }
+    node2.setParent(node1);
     t.addEdge(node1, node2);
   }
 
@@ -83,6 +89,60 @@ public class Tree<E> {
    */
   public int size() {
     return size;
+  }
+
+  /**
+   * Returns true is s is an ancestor of t
+   */
+  public boolean isAncestorOf(E s, E t){
+    Node<E> curr = getNode(t);
+    while (curr != null){
+      if (curr.getParent() == getNode(s))
+        return true;
+      curr = curr.getParent();
+    }
+    return false;
+  }
+
+  /**
+   * Finds least common ancestor of s and t
+   */
+  public E leastCommonAncestor(E s, E t){
+    Node<E> curr = getNode(t);
+    while (curr != null){
+      if (isAncestorOf(curr.getValue(),s))
+        return curr.getValue();
+      curr = curr.getParent();
+    }
+    return null;
+  }
+
+  /**
+   * Marks a node s as visited
+   */
+  public void mark(E s){
+    if (getNode(s) != null){
+      getNode(s).setVisited(true);
+      markedNodes.add(s);
+    }
+  }
+
+  /**
+   * Get all marked nodes
+   */
+  public List<E> getMarkedNodes(){
+    return markedNodes;
+  }
+
+  /**
+   * Marks back path from b to l
+   */
+  public void markBackPath(E b, E l){
+    Node<E> curr = getNode(b);
+    while (curr != l){
+      mark(curr.getValue());
+      curr = curr.getParent();
+    }
   }
 
   /**
@@ -111,6 +171,8 @@ public class Tree<E> {
   private class Node<T> {
     String id;
     private T value;
+    private Node<T> parent;
+    private boolean visited;
 
     public Node(T value) {
       this.value = value;
@@ -120,11 +182,40 @@ public class Tree<E> {
       this.id = String.valueOf(id);
     }
 
+    public void setParent(Node<T> p) {
+      this.parent = p;
+    }
+
+    public void setVisited(boolean b) {
+      this.visited = b;
+    }
+
     /**
      * Get id
      */
     public String getId() {
       return id;
+    }
+
+    /**
+     * Get parent in tree
+     */
+    public Node<T> getParent() {
+      return parent;
+    }
+
+    /**
+     * Get value
+     */
+    public T getValue() {
+      return value;
+    }
+
+     /**
+     * Get visited
+     */
+    public boolean getVisited() {
+      return visited;
     }
 
     @Override

@@ -381,6 +381,32 @@ public class ControlFlowGraph {
   }
 
   /**
+   * Get the augmented Control Flow Graph
+   */
+  public ControlFlowGraph getAugmentedCfg() {
+    ControlFlowGraph acfg = new ControlFlowGraph();
+    acfg.g.addVertex(StartNode.get());
+    acfg.initial = StartNode.get();
+    for (GraphNode v : g.vertexSet()) {
+      acfg.g.addVertex(v);
+    }
+    acfg.g.addEdge(StartNode.get(), EntryNode.get(),new LabeledEdge(TRUE_LABEL));
+    acfg.g.addEdge(StartNode.get(), ExitNode.get(), new LabeledEdge(FALSE_LABEL));
+    for (LabeledEdge edge : g.edgeSet()) {
+      acfg.g.addEdge(g.getEdgeTarget(edge), g.getEdgeSource(edge));
+    }
+    return acfg;
+  }
+
+  /**
+   * Get the Control Dependence Graph
+   */
+  public ControlDependenceGraph getCdg() {
+    ControlFlowGraph acfg = getAugmentedCfg();
+    return new ControlDependenceGraph(acfg, acfg.computePostDominatorsTree());
+  }
+
+  /**
    * Compute the set of postdominators
    */
   public Map<GraphNode, Set<GraphNode>> computePostDom() {
