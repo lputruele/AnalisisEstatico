@@ -14,7 +14,7 @@ import miniJava.Statement;
  * 
  * @author fmolina
  */
-public class BasicBlock extends ControlFlowGraphNode {
+public class BasicBlock extends GraphNode {
 
   private List<Statement> statements; // Program statements that are part of the block
 

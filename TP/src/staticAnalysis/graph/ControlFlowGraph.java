@@ -28,8 +28,8 @@ import staticAnalysis.tree.Tree;
  */
 public class ControlFlowGraph {
 
-  DefaultDirectedGraph<ControlFlowGraphNode, LabeledEdge> g;
-  ControlFlowGraphNode initial;
+  DefaultDirectedGraph<GraphNode, LabeledEdge> g;
+  GraphNode initial;
   private static final String TRUE_LABEL = "T";
   private static final String FALSE_LABEL = "F";
 
@@ -37,14 +37,14 @@ public class ControlFlowGraph {
    * Constructor of the Control Flow Graph
    */
   public ControlFlowGraph() {
-    g = new DefaultDirectedGraph<ControlFlowGraphNode, LabeledEdge>(LabeledEdge.class);
+    g = new DefaultDirectedGraph<GraphNode, LabeledEdge>(LabeledEdge.class);
   }
 
   /**
    * Constructor of the Control Flow Graph from a program p
    */
   public ControlFlowGraph(Program p) {
-    g = new DefaultDirectedGraph<ControlFlowGraphNode, LabeledEdge>(LabeledEdge.class);
+    g = new DefaultDirectedGraph<GraphNode, LabeledEdge>(LabeledEdge.class);
     List<BasicBlock> basicBlocks = getBasicBlocks(p);
     buildGraph(basicBlocks, p);
   }
@@ -165,7 +165,7 @@ public class ControlFlowGraph {
     g.addVertex(EntryNode.get());
     g.addVertex(ExitNode.get());
     // Add node Entry -> B1
-    ControlFlowGraphNode entryBlock = basicBlocks.get(0);
+    GraphNode entryBlock = basicBlocks.get(0);
     g.addVertex(entryBlock);
     g.addEdge(EntryNode.get(), entryBlock);
     // Add nodes Bi -> Bj if and only if Bj can immediately follow Bi in some execution
@@ -306,26 +306,26 @@ public class ControlFlowGraph {
   /**
    * Compute the set of dominators of each node in the Control Flow Graph
    */
-  public Map<ControlFlowGraphNode, Set<ControlFlowGraphNode>> computeDom() {
-    Map<ControlFlowGraphNode, Set<ControlFlowGraphNode>> doms = new HashMap<ControlFlowGraphNode, Set<ControlFlowGraphNode>>();
-    doms.put(initial, new HashSet<ControlFlowGraphNode>());
+  public Map<GraphNode, Set<GraphNode>> computeDom() {
+    Map<GraphNode, Set<GraphNode>> doms = new HashMap<GraphNode, Set<GraphNode>>();
+    doms.put(initial, new HashSet<GraphNode>());
     // Initially, the dominators of the initial node is just the initial node
     doms.get(initial).add(initial);
     // Also, for each node that is not the initial one, the dominators are all the nodes
-    for (ControlFlowGraphNode node : g.vertexSet()) {
+    for (GraphNode node : g.vertexSet()) {
       if (!node.equals(initial)) {
-        Set<ControlFlowGraphNode> allNodes = new HashSet<ControlFlowGraphNode>(g.vertexSet());
+        Set<GraphNode> allNodes = new HashSet<GraphNode>(g.vertexSet());
         doms.put(node, allNodes);
       }
     }
     boolean changeOcurred = true;
     while (changeOcurred) {
       changeOcurred = false;
-      for (ControlFlowGraphNode node : g.vertexSet()) {
+      for (GraphNode node : g.vertexSet()) {
         if (!node.equals(initial)) {
           // For each node that is not the initial
-          Set<ControlFlowGraphNode> currentDoms = doms.get(node);
-          Set<ControlFlowGraphNode> intersectPreds = intersectPredecessors(node, doms);
+          Set<GraphNode> currentDoms = doms.get(node);
+          Set<GraphNode> intersectPreds = intersectPredecessors(node, doms);
           intersectPreds.add(node);
           if (!currentDoms.equals(intersectPreds)) {
             changeOcurred = true;
@@ -340,13 +340,13 @@ public class ControlFlowGraph {
   /**
    * Intersects the current dominators of all the predecessors of the given node
    */
-  private Set<ControlFlowGraphNode> intersectPredecessors(ControlFlowGraphNode node,
-      Map<ControlFlowGraphNode, Set<ControlFlowGraphNode>> doms) {
-    Set<ControlFlowGraphNode> intersection = new HashSet<ControlFlowGraphNode>();
-    Set<ControlFlowGraphNode> predecessors = getPredecessors(node);
+  private Set<GraphNode> intersectPredecessors(GraphNode node,
+      Map<GraphNode, Set<GraphNode>> doms) {
+    Set<GraphNode> intersection = new HashSet<GraphNode>();
+    Set<GraphNode> predecessors = getPredecessors(node);
     if (predecessors.size() > 0) {
-      intersection = new HashSet<ControlFlowGraphNode>(doms.get(predecessors.iterator().next()));
-      for (ControlFlowGraphNode pred : predecessors) {
+      intersection = new HashSet<GraphNode>(doms.get(predecessors.iterator().next()));
+      for (GraphNode pred : predecessors) {
         intersection.retainAll(doms.get(pred));
       }
     }
@@ -356,8 +356,8 @@ public class ControlFlowGraph {
   /**
    * Compute the predecessors of a given node
    */
-  private Set<ControlFlowGraphNode> getPredecessors(ControlFlowGraphNode node) {
-    Set<ControlFlowGraphNode> pred = new HashSet<ControlFlowGraphNode>();
+  private Set<GraphNode> getPredecessors(GraphNode node) {
+    Set<GraphNode> pred = new HashSet<GraphNode>();
     for (LabeledEdge edge : g.edgeSet()) {
       if (node.equals(g.getEdgeTarget(edge)))
         pred.add(g.getEdgeSource(edge));
@@ -371,7 +371,7 @@ public class ControlFlowGraph {
   public ControlFlowGraph reverse() {
     ControlFlowGraph reversedCfg = new ControlFlowGraph();
     reversedCfg.initial = ExitNode.get();
-    for (ControlFlowGraphNode v : g.vertexSet()) {
+    for (GraphNode v : g.vertexSet()) {
       reversedCfg.g.addVertex(v);
     }
     for (LabeledEdge edge : g.edgeSet()) {
@@ -383,7 +383,7 @@ public class ControlFlowGraph {
   /**
    * Compute the set of postdominators
    */
-  public Map<ControlFlowGraphNode, Set<ControlFlowGraphNode>> computePostDom() {
+  public Map<GraphNode, Set<GraphNode>> computePostDom() {
     ControlFlowGraph reverse = reverse();
     return reverse.computeDom();
   }
@@ -391,24 +391,24 @@ public class ControlFlowGraph {
   /**
    * Compute the postdominators tree
    */
-  public Tree<ControlFlowGraphNode> computePostDominatorsTree() {
+  public Tree<GraphNode> computePostDominatorsTree() {
     ControlFlowGraph reverse = reverse();
-    Map<ControlFlowGraphNode, Set<ControlFlowGraphNode>> postDoms = reverse.computeDom();
-    Tree<ControlFlowGraphNode> postDomTree = new Tree<ControlFlowGraphNode>(reverse.initial);
-    LinkedList<ControlFlowGraphNode> queue = new LinkedList<ControlFlowGraphNode>();
+    Map<GraphNode, Set<GraphNode>> postDoms = reverse.computeDom();
+    Tree<GraphNode> postDomTree = new Tree<GraphNode>(reverse.initial);
+    LinkedList<GraphNode> queue = new LinkedList<GraphNode>();
     // Enqueue the initial node
     queue.addLast(reverse.initial);
     // Remove each node from the dominators of itself
-    for (ControlFlowGraphNode node : reverse.g.vertexSet()) {
-      Set<ControlFlowGraphNode> nodeDoms = postDoms.get(node);
+    for (GraphNode node : reverse.g.vertexSet()) {
+      Set<GraphNode> nodeDoms = postDoms.get(node);
       nodeDoms.remove(node);
       postDoms.put(node, nodeDoms);
     }
     while (!queue.isEmpty()) {
-      ControlFlowGraphNode current = queue.removeFirst();
-      for (ControlFlowGraphNode node : reverse.g.vertexSet()) {
+      GraphNode current = queue.removeFirst();
+      for (GraphNode node : reverse.g.vertexSet()) {
         // For each node in such that the dominators set is not empty
-        Set<ControlFlowGraphNode> nodeDoms = postDoms.get(node);
+        Set<GraphNode> nodeDoms = postDoms.get(node);
         if (!nodeDoms.isEmpty()) {
           if (nodeDoms.contains(current)) {
             nodeDoms.remove(current);
@@ -424,17 +424,32 @@ public class ControlFlowGraph {
   }
 
   /**
+   * Perform the iterative dataflow analysis which consists of the computation of four sets: KILL,
+   * GEN, IN, OUT
+   */
+  public void iterativeDataFlowAnalysis() {
+    computeGenAndKillSets();
+  }
+
+  /**
+   * Compute GEN and KILL sets
+   */
+  private void computeGenAndKillSets() {
+
+  }
+
+  /**
    * Export the graph as dot file
    */
   public void export() {
     try {
-      VertexNameProvider<ControlFlowGraphNode> vertexIdProvider = new VertexNameProvider<ControlFlowGraphNode>() {
-        public String getVertexName(ControlFlowGraphNode cfgn) {
+      VertexNameProvider<GraphNode> vertexIdProvider = new VertexNameProvider<GraphNode>() {
+        public String getVertexName(GraphNode cfgn) {
           return cfgn.getId();
         }
       };
-      VertexNameProvider<ControlFlowGraphNode> vertexLabelProvider = new VertexNameProvider<ControlFlowGraphNode>() {
-        public String getVertexName(ControlFlowGraphNode cfgn) {
+      VertexNameProvider<GraphNode> vertexLabelProvider = new VertexNameProvider<GraphNode>() {
+        public String getVertexName(GraphNode cfgn) {
           return cfgn.toString();
         }
       };
@@ -443,7 +458,7 @@ public class ControlFlowGraph {
           return edge.getLabel();
         }
       };
-      DOTExporter<ControlFlowGraphNode, LabeledEdge> exporter = new DOTExporter<ControlFlowGraphNode, LabeledEdge>(
+      DOTExporter<GraphNode, LabeledEdge> exporter = new DOTExporter<GraphNode, LabeledEdge>(
           vertexIdProvider, vertexLabelProvider, edgeLabelProvider);
       exporter.export(new FileWriter("cfg.dot"), g);
     } catch (IOException e) {

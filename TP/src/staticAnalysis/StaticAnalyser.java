@@ -2,7 +2,7 @@ package staticAnalysis;
 
 import miniJava.Program;
 import staticAnalysis.graph.ControlFlowGraph;
-import staticAnalysis.graph.ControlFlowGraphNode;
+import staticAnalysis.graph.GraphNode;
 import staticAnalysis.tree.Tree;
 
 /**
@@ -17,7 +17,7 @@ public class StaticAnalyser {
       throw new IllegalArgumentException("The program can't be null");
     cfg = new ControlFlowGraph(p);
     cfg.export();
-    Tree<ControlFlowGraphNode> t = cfg.computePostDominatorsTree();
+    Tree<GraphNode> t = cfg.computePostDominatorsTree();
     t.export();
   }
 

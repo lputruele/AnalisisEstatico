@@ -5,7 +5,7 @@ package staticAnalysis.graph;
  * 
  * @author fmolina
  */
-public class EntryNode extends ControlFlowGraphNode {
+public class EntryNode extends GraphNode {
 
   private static EntryNode single_instance = null;
 
