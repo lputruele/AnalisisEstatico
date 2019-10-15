@@ -97,7 +97,7 @@ public class Tree<E> {
   public boolean isAncestorOf(E s, E t){
     Node<E> curr = getNode(t);
     while (curr != null){
-      if (curr.getParent() == getNode(s))
+      if (curr.value.equals(s))
         return true;
       curr = curr.getParent();
     }
@@ -122,7 +122,7 @@ public class Tree<E> {
    */
   public void mark(E s){
     if (getNode(s) != null){
-      getNode(s).setVisited(true);
+      //getNode(s).setVisited(true);
       markedNodes.add(s);
     }
   }
@@ -134,12 +134,17 @@ public class Tree<E> {
     return markedNodes;
   }
 
+  public void clearMarked(){
+    //System.out.println(markedNodes);
+    markedNodes.clear();
+  }
+
   /**
    * Marks back path from b to l
    */
   public void markBackPath(E b, E l){
     Node<E> curr = getNode(b);
-    while (curr != l){
+    while (curr != null && !curr.value.equals(l)){
       mark(curr.getValue());
       curr = curr.getParent();
     }

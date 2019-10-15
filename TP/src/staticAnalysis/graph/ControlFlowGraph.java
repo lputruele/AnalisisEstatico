@@ -393,7 +393,7 @@ public class ControlFlowGraph {
     acfg.g.addEdge(StartNode.get(), EntryNode.get(),new LabeledEdge(TRUE_LABEL));
     acfg.g.addEdge(StartNode.get(), ExitNode.get(), new LabeledEdge(FALSE_LABEL));
     for (LabeledEdge edge : g.edgeSet()) {
-      acfg.g.addEdge(g.getEdgeTarget(edge), g.getEdgeSource(edge));
+      acfg.g.addEdge(g.getEdgeSource(edge), g.getEdgeTarget(edge));
     }
     return acfg;
   }
