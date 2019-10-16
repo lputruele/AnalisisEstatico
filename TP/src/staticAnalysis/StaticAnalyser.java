@@ -16,8 +16,8 @@ public class StaticAnalyser {
     if (p == null)
       throw new IllegalArgumentException("The program can't be null");
     cfg = new ControlFlowGraph(p);
-    cfg.getAugmentedCfg().export();
-    Tree<GraphNode> t = cfg.getAugmentedCfg().computePostDominatorsTree();
+    cfg.export();
+    Tree<GraphNode> t = cfg.computePostDominatorsTree();
     t.export();
     cfg.getCdg().export();
     cfg.iterativeDataFlowAnalysis();
