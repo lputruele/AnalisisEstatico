@@ -28,6 +28,7 @@ import staticAnalysis.tree.Tree;
  */
 public class ControlFlowGraph {
 
+  Program p;
   DefaultDirectedGraph<GraphNode, LabeledEdge> g;
   GraphNode initial;
   private static final String TRUE_LABEL = "T";
@@ -44,6 +45,7 @@ public class ControlFlowGraph {
    * Constructor of the Control Flow Graph from a program p
    */
   public ControlFlowGraph(Program p) {
+    this.p = p;
     g = new DefaultDirectedGraph<GraphNode, LabeledEdge>(LabeledEdge.class);
     List<BasicBlock> basicBlocks = getBasicBlocks(p);
     buildGraph(basicBlocks, p);
@@ -429,13 +431,49 @@ public class ControlFlowGraph {
    */
   public void iterativeDataFlowAnalysis() {
     computeGenAndKillSets();
+    computeReachingDefs();
   }
 
   /**
    * Compute GEN and KILL sets
    */
   private void computeGenAndKillSets() {
+    for (GraphNode node : g.vertexSet()) {
+      node.computeGen();
+      node.computeKill(p.getStatements());
+    }
+  }
 
+  /**
+   * Compute the Reaching Definitions assuming that computeGenAndKillSets method has been executed
+   */
+  private void computeReachingDefs() {
+    // OUT[n] = GEN[n]
+    for (GraphNode node : g.vertexSet()) {
+      node.setOut(new HashSet<Definition>(node.getGen()));
+    }
+    boolean change = true;
+    while (change) {
+      change = false;
+      for (GraphNode node : g.vertexSet()) {
+        // IN[n] = U OUT[P] where P is an immediate predecessor of node
+        Set<GraphNode> preds = getPredecessors(node);
+        Set<Definition> in = new HashSet<Definition>();
+        for (GraphNode pred : preds) {
+          in.addAll(new HashSet<Definition>(pred.getOut()));
+        }
+        node.setIn(in);
+        // OLDOUT = OUT[n]
+        Set<Definition> oldOut = node.getOut();
+        // OUT[n] = GEN[n] U (IN[n] - KILL[n])
+        Set<Definition> newOut = new HashSet<Definition>(node.getIn());
+        newOut.removeAll(node.getKill());
+        newOut.addAll(node.getGen());
+        node.setOut(newOut);
+        if (!newOut.equals(oldOut))
+          change = true;
+      }
+    }
   }
 
   /**

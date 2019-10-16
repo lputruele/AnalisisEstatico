@@ -1,5 +1,10 @@
 package staticAnalysis.graph;
 
+import java.util.HashSet;
+import java.util.List;
+
+import miniJava.Statement;
+
 /**
  * Exit Node
  * 
@@ -23,4 +28,15 @@ public class ExitNode extends GraphNode {
   public String toString() {
     return "[" + id + "]";
   }
+
+  @Override
+  public void computeGen() {
+    gen = new HashSet<Definition>();
+  }
+
+  @Override
+  public void computeKill(List<Statement> progStmt) {
+    kill = new HashSet<Definition>();
+  }
+
 }

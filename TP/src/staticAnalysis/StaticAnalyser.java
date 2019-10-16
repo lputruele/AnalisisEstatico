@@ -19,6 +19,7 @@ public class StaticAnalyser {
     cfg.export();
     Tree<GraphNode> t = cfg.computePostDominatorsTree();
     t.export();
+    cfg.iterativeDataFlowAnalysis();
   }
 
   public void doSomething() {

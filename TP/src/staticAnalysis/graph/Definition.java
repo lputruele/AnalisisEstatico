@@ -26,4 +26,9 @@ public class Definition {
     return stmt;
   }
 
+  @Override
+  public String toString() {
+    return "Def: " + stmt.toString();
+  }
+
 }

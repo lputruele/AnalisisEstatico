@@ -1,5 +1,10 @@
 package staticAnalysis.graph;
 
+import java.util.HashSet;
+import java.util.List;
+
+import miniJava.Statement;
+
 /**
  * Entry Node
  * 
@@ -24,4 +29,13 @@ public class EntryNode extends GraphNode {
     return "[" + id + "]";
   }
 
+  @Override
+  public void computeGen() {
+    gen = new HashSet<Definition>();
+  }
+
+  @Override
+  public void computeKill(List<Statement> progStmt) {
+    kill = new HashSet<Definition>();
+  }
 }

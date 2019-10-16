@@ -1,8 +1,11 @@
 package staticAnalysis.graph;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import miniJava.Assign;
 import miniJava.Conditional;
 import miniJava.Iterative;
 import miniJava.Statement;
@@ -63,5 +66,59 @@ public class BasicBlock extends GraphNode {
     str = str.substring(0, str.length() - 2);
     str += " ]";
     return str;
+  }
+
+  @Override
+  public void computeGen() {
+    gen = new HashSet<Definition>();
+    assert statements.size() == 1;
+    Statement stmt = statements.get(0);
+    if (stmt instanceof Assign) {
+      gen.add(new Definition(stmt));
+    }
+  }
+
+  @Override
+  public void computeKill(List<Statement> progStmt) {
+    kill = new HashSet<Definition>();
+    assert statements.size() == 1;
+    Statement stmt = statements.get(0);
+    if (stmt instanceof Assign) {
+      kill.add(new Definition(stmt));
+      computeKillRecursivelly(kill, (Assign) stmt, progStmt);
+    }
+  }
+
+  /**
+   * Compute kill recursivelly
+   */
+  private boolean computeKillRecursivelly(Set<Definition> killSet, Assign target,
+      List<Statement> progStmt) {
+    boolean continueComputation = true;
+    for (Statement stmt : progStmt) {
+      if (stmt instanceof Assign) {
+        if (stmt.equals(target)) {
+          continueComputation = false;
+        } else {
+          if (((Assign) stmt).getVar().equals(target.getVar())) {
+            killSet.add(new Definition(stmt));
+          }
+        }
+      }
+      if (stmt instanceof Conditional) {
+        continueComputation = computeKillRecursivelly(killSet, target,
+            ((Conditional) stmt).getThenBlock());
+        if (continueComputation)
+          continueComputation = computeKillRecursivelly(killSet, target,
+              ((Conditional) stmt).getElseBlock());
+      }
+      if (stmt instanceof Iterative) {
+        continueComputation = computeKillRecursivelly(killSet, target,
+            ((Iterative) stmt).getDoBlock());
+      }
+      if (!continueComputation)
+        break;
+    }
+    return continueComputation;
   }
 }

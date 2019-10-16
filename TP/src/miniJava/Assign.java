@@ -1,25 +1,27 @@
 package miniJava;
 
+public class Assign extends Statement {
 
-public class Assign extends Statement{
+  String var;
+  Expression exp;
 
-	String var;
-	Expression exp;
+  public Assign(String id, Expression exp) {
+    this.var = id;
+    this.exp = exp;
+  }
 
+  public String getVar() {
+    return var;
+  }
 
-	public Assign(String id, Expression exp){
-		this.var = id;
-		this.exp = exp;
-	}
+  @Override
+  public boolean isControlTransferStatement() {
+    return false;
+  }
 
-	@Override
-	public boolean isControlTransferStatement() {
-		return false;
-	}
+  @Override
+  public String toString() {
+    return var + " = " + exp.toString();
+  }
 
-	@Override
-	public String toString(){
-		return var + " = " + exp.toString();
-	}
-	
 }
