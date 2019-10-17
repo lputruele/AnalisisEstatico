@@ -15,10 +15,13 @@ import org.jgrapht.ext.EdgeNameProvider;
 import org.jgrapht.ext.VertexNameProvider;
 import org.jgrapht.graph.DefaultDirectedGraph;
 
+import miniJava.Assign;
 import miniJava.Conditional;
 import miniJava.Iterative;
 import miniJava.Program;
+import miniJava.Return;
 import miniJava.Statement;
+import miniJava.Var;
 import staticAnalysis.tree.Tree;
 
 /**
@@ -392,7 +395,7 @@ public class ControlFlowGraph {
     for (GraphNode v : g.vertexSet()) {
       acfg.g.addVertex(v);
     }
-    acfg.g.addEdge(StartNode.get(), EntryNode.get(),new LabeledEdge(TRUE_LABEL));
+    acfg.g.addEdge(StartNode.get(), EntryNode.get(), new LabeledEdge(TRUE_LABEL));
     acfg.g.addEdge(StartNode.get(), ExitNode.get(), new LabeledEdge(FALSE_LABEL));
     for (LabeledEdge edge : g.edgeSet()) {
       acfg.g.addEdge(g.getEdgeSource(edge), g.getEdgeTarget(edge));
@@ -500,6 +503,77 @@ public class ControlFlowGraph {
           change = true;
       }
     }
+  }
+
+  /**
+   * Compute the Definition-Use Pairs
+   */
+  public Set<DUPair> computeDefUsePairs() {
+    HashSet<DUPair> dupairs = new HashSet<DUPair>();
+    for (GraphNode node : g.vertexSet()) {
+      Set<Statement> upwardsExposedUses = getUpwardsExposedUses(node);
+      for (Statement use : upwardsExposedUses) {
+        for (Definition def : node.getIn()) {
+          if (defUseSameVariable(def, use))
+            dupairs.add(new DUPair(def.getStmt(), use));
+        }
+      }
+    }
+    return dupairs;
+  }
+
+  /**
+   * Return true iff the given definition and the given use are over the same variable
+   */
+  private boolean defUseSameVariable(Definition def, Statement use) {
+    if (def.getStmt() instanceof Assign) {
+      String var = ((Assign) def.getStmt()).getVar();
+      if (use instanceof Assign) {
+        return !((Assign) use).getVar().equals(var)
+            && ((Assign) use).getExpression().toString().contains(var);
+      } else if (use instanceof Conditional) {
+        return ((Conditional) use).getCondition().toString().equals(var);
+      } else if (use instanceof Iterative) {
+        return ((Iterative) use).getCondition().toString().equals(var);
+      } else if (use instanceof Return) {
+        return ((Return) use).getExpression().toString().contains(var);
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Get upwards exposed uses in the given node
+   */
+  private Set<Statement> getUpwardsExposedUses(GraphNode node) {
+    HashSet<Statement> ueu = new HashSet<Statement>();
+    Set<Definition> in = node.getIn();
+    for (Definition d : in) {
+      Assign stmt = (Assign) d.getStmt();
+      for (Statement nodeStmt : node.getStatements()) {
+        if (uses(nodeStmt, stmt.getVar()))
+          ueu.add(nodeStmt);
+      }
+    }
+    return ueu;
+  }
+
+  /**
+   * Returns true iff the given statement uses the given variable and it is not a definition
+   */
+  private boolean uses(Statement stmt, String var) {
+    if (stmt instanceof Assign) {
+      return stmt.toString().contains(var) && !((Assign) stmt).getVar().contains(var);
+    } else if (stmt instanceof Conditional) {
+      Conditional cond = (Conditional) stmt;
+      return cond.getCondition() instanceof Var && cond.getCondition().toString().equals(var);
+    } else if (stmt instanceof Iterative) {
+      Iterative it = (Iterative) stmt;
+      return it.getCondition() instanceof Var && it.getCondition().toString().equals(var);
+    } else if (stmt instanceof Return) {
+      return stmt.toString().contains(var);
+    }
+    return false;
   }
 
   /**

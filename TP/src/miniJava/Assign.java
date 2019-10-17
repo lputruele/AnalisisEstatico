@@ -14,6 +14,10 @@ public class Assign extends Statement {
     return var;
   }
 
+  public Expression getExpression() {
+    return exp;
+  }
+
   @Override
   public boolean isControlTransferStatement() {
     return false;

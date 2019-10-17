@@ -30,6 +30,11 @@ public abstract class GraphNode {
   }
 
   /**
+   * Get the list of statements in the node
+   */
+  public abstract List<Statement> getStatements();
+
+  /**
    * Compute the gen definitions of the node
    */
   public abstract void computeGen();

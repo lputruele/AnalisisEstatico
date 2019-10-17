@@ -1,6 +1,7 @@
 package staticAnalysis.graph;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import miniJava.Statement;
@@ -22,6 +23,11 @@ public class StartNode extends GraphNode {
     if (single_instance == null)
       single_instance = new StartNode();
     return single_instance;
+  }
+
+  @Override
+  public List<Statement> getStatements() {
+    return new LinkedList<Statement>();
   }
 
   @Override

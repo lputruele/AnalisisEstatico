@@ -90,7 +90,7 @@ public class BasicBlock extends GraphNode {
   }
 
   /**
-   * Compute kill recursivelly
+   * Compute kill recursively
    */
   private boolean computeKillRecursivelly(Set<Definition> killSet, Assign target,
       List<Statement> progStmt) {

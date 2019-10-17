@@ -1,6 +1,7 @@
 package staticAnalysis.graph;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import miniJava.Statement;
@@ -30,6 +31,11 @@ public class EntryNode extends GraphNode {
   }
 
   @Override
+  public List<Statement> getStatements() {
+    return new LinkedList<Statement>();
+  }
+
+  @Override
   public void computeGen() {
     gen = new HashSet<Definition>();
   }
@@ -38,4 +44,5 @@ public class EntryNode extends GraphNode {
   public void computeKill(List<Statement> progStmt) {
     kill = new HashSet<Definition>();
   }
+
 }
