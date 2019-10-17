@@ -1,10 +1,7 @@
 package staticAnalysis;
 
-import java.util.Set;
-
 import miniJava.Program;
 import staticAnalysis.graph.ControlFlowGraph;
-import staticAnalysis.graph.DUPair;
 import staticAnalysis.graph.GraphNode;
 import staticAnalysis.tree.Tree;
 
@@ -24,15 +21,7 @@ public class StaticAnalyser {
     t.export();
     cfg.getCdg().export();
     cfg.iterativeDataFlowAnalysis();
-    Set<DUPair> dupairs = cfg.computeDefUsePairs();
-    printDUPairs(dupairs);
-  }
-
-  private void printDUPairs(Set<DUPair> dupairs) {
-    System.out.println("DUPairs");
-    for (DUPair du : dupairs) {
-      System.out.println(du.toString());
-    }
+    cfg.getDdg().export();
   }
 
 }

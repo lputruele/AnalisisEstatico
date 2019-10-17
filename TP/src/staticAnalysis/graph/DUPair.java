@@ -18,21 +18,20 @@ public class DUPair {
 
   private String var; // Variable v
   private Statement definition; // Definition statement
+  private GraphNode defGraphNode; // Graph node in which the definition is present
   private Statement use; // Use statement
+  private GraphNode useGraphNode; // Graph node in which the use is present
 
   /**
    * Constructor
-   * 
-   * @param d
-   *          is the definition statement
-   * @param u
-   *          is the use statement
    */
-  public DUPair(Statement d, Statement u) {
-    assert d != null && d instanceof Assign && u != null;
+  public DUPair(Statement d, GraphNode dNode, Statement u, GraphNode uNode) {
+    assert d != null && d instanceof Assign && u != null && dNode != null && uNode != null;
     var = ((Assign) d).getVar();
     definition = d;
+    defGraphNode = dNode;
     use = u;
+    useGraphNode = uNode;
   }
 
   /**
@@ -50,10 +49,24 @@ public class DUPair {
   }
 
   /**
+   * Get definition graph node
+   */
+  public GraphNode getDefinitionGraphNode() {
+    return defGraphNode;
+  }
+
+  /**
    * Get the use statement
    */
   public Statement getUse() {
     return use;
+  }
+
+  /**
+   * Get use graph node
+   */
+  public GraphNode getUseGraphNode() {
+    return useGraphNode;
   }
 
   @Override

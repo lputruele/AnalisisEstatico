@@ -10,13 +10,15 @@ import miniJava.Statement;
 public class Definition {
 
   private Statement stmt;
+  private GraphNode node; // Node in which the statement is present
 
   /**
    * Constructor with a given statement
    */
-  public Definition(Statement stmt) {
-    assert stmt != null;
+  public Definition(Statement stmt, GraphNode stmtNode) {
+    assert stmt != null && stmtNode != null;
     this.stmt = stmt;
+    this.node = stmtNode;
   }
 
   /**
@@ -24,6 +26,13 @@ public class Definition {
    */
   public Statement getStmt() {
     return stmt;
+  }
+
+  /**
+   * Get the graph node in which the stmt is present
+   */
+  public GraphNode getGraphNode() {
+    return node;
   }
 
   @Override

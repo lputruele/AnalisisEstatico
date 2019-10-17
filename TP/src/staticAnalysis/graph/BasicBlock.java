@@ -74,7 +74,7 @@ public class BasicBlock extends GraphNode {
     assert statements.size() == 1;
     Statement stmt = statements.get(0);
     if (stmt instanceof Assign) {
-      gen.add(new Definition(stmt));
+      gen.add(new Definition(stmt, this));
     }
   }
 
@@ -84,7 +84,7 @@ public class BasicBlock extends GraphNode {
     assert statements.size() == 1;
     Statement stmt = statements.get(0);
     if (stmt instanceof Assign) {
-      kill.add(new Definition(stmt));
+      kill.add(new Definition(stmt, this));
       computeKillRecursivelly(kill, (Assign) stmt, progStmt);
     }
   }
@@ -101,7 +101,7 @@ public class BasicBlock extends GraphNode {
           continueComputation = false;
         } else {
           if (((Assign) stmt).getVar().equals(target.getVar())) {
-            killSet.add(new Definition(stmt));
+            killSet.add(new Definition(stmt, this));
           }
         }
       }

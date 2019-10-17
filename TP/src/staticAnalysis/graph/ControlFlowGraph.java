@@ -1,7 +1,5 @@
 package staticAnalysis.graph;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,9 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jgrapht.ext.DOTExporter;
-import org.jgrapht.ext.EdgeNameProvider;
-import org.jgrapht.ext.VertexNameProvider;
 import org.jgrapht.graph.DefaultDirectedGraph;
 
 import miniJava.Assign;
@@ -412,6 +407,13 @@ public class ControlFlowGraph {
   }
 
   /**
+   * Get the Data Dependence Graph
+   */
+  public DataDependenceGraph getDdg() {
+    return new DataDependenceGraph(this);
+  }
+
+  /**
    * Compute the set of postdominators
    */
   public Map<GraphNode, Set<GraphNode>> computePostDom() {
@@ -515,7 +517,7 @@ public class ControlFlowGraph {
       for (Statement use : upwardsExposedUses) {
         for (Definition def : node.getIn()) {
           if (defUseSameVariable(def, use))
-            dupairs.add(new DUPair(def.getStmt(), use));
+            dupairs.add(new DUPair(def.getStmt(), def.getGraphNode(), use, node));
         }
       }
     }
@@ -580,27 +582,6 @@ public class ControlFlowGraph {
    * Export the graph as dot file
    */
   public void export() {
-    try {
-      VertexNameProvider<GraphNode> vertexIdProvider = new VertexNameProvider<GraphNode>() {
-        public String getVertexName(GraphNode cfgn) {
-          return cfgn.getId();
-        }
-      };
-      VertexNameProvider<GraphNode> vertexLabelProvider = new VertexNameProvider<GraphNode>() {
-        public String getVertexName(GraphNode cfgn) {
-          return cfgn.toString();
-        }
-      };
-      EdgeNameProvider<LabeledEdge> edgeLabelProvider = new EdgeNameProvider<LabeledEdge>() {
-        public String getEdgeName(LabeledEdge edge) {
-          return edge.getLabel();
-        }
-      };
-      DOTExporter<GraphNode, LabeledEdge> exporter = new DOTExporter<GraphNode, LabeledEdge>(
-          vertexIdProvider, vertexLabelProvider, edgeLabelProvider);
-      exporter.export(new FileWriter("cfg.dot"), g);
-    } catch (IOException e) {
-      System.out.println("Unable to export graph");
-    }
+    ExportUtil.dotExport(g, "cfg.dot");
   }
 }

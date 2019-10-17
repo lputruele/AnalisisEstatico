@@ -10,7 +10,7 @@ import org.jgrapht.graph.DefaultEdge;
  */
 public class LabeledEdge extends DefaultEdge {
 
-  private String label;
+  String label;
 
   /**
    * Default constructor
