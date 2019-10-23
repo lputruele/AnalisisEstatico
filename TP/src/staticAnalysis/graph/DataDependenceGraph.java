@@ -26,11 +26,11 @@ public class DataDependenceGraph {
       g.addVertex(node);
     }
     for (LabeledEdge edge : cfg.g.edgeSet()) {
-      g.addEdge(cfg.g.getEdgeSource(edge), cfg.g.getEdgeTarget(edge));
+      g.addEdge(cfg.g.getEdgeSource(edge), cfg.g.getEdgeTarget(edge), new LabeledEdge(EdgeType.DDG));
     }
     // Add an special labeled edge from D to U for each Definition Use Pair
     for (DUPair dupair : dupairs) {
-      LabeledEdge duPairLabeledEdge = new LabeledEdge(dupair.toString());
+      LabeledEdge duPairLabeledEdge = new LabeledEdge(EdgeType.DDG, dupair.toString());
       g.addEdge(dupair.getDefinitionGraphNode(), dupair.getUseGraphNode(), duPairLabeledEdge);
     }
   }

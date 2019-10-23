@@ -28,7 +28,6 @@ public class ControlDependenceGraph {
     for (GraphNode n : acfg.g.vertexSet()) {
       g.addVertex(n);
     }
-    // acfg.initial = StartNode.get();
     for (LabeledEdge edge : acfg.g.edgeSet()) {
       if (!pdt.isAncestorOf(acfg.g.getEdgeTarget(edge), acfg.g.getEdgeSource(edge))) {
         s.add(edge);
@@ -40,16 +39,12 @@ public class ControlDependenceGraph {
       GraphNode a = acfg.g.getEdgeSource(edge);
       GraphNode b = acfg.g.getEdgeTarget(edge);
       GraphNode l = pdt.leastCommonAncestor(a, b);
-      // System.out.println("A: :"+a);
-      // System.out.println("B: "+b);
-      // System.out.println("L: "+l);
       pdt.markBackPath(b, l);
       if (a.equals(l)) {
         pdt.mark(a);
       }
-      // System.out.println("marked: "+ pdt.getMarkedNodes() );
       for (GraphNode n : pdt.getMarkedNodes()) {
-        g.addEdge(a, n, new LabeledEdge(edge.getLabel()));
+        g.addEdge(a, n, new LabeledEdge(EdgeType.CDG,edge.getLabel()));
       }
       pdt.clearMarked();
     }

@@ -8,22 +8,26 @@ import org.jgrapht.graph.DefaultEdge;
  * @author fmolina
  *
  */
+
 public class LabeledEdge extends DefaultEdge {
 
   String label;
+  EdgeType type;
 
   /**
    * Default constructor
    */
-  public LabeledEdge() {
+  public LabeledEdge(EdgeType et) {
     label = "";
+    type = et;
   }
 
   /**
    * Constructor with label
    */
-  public LabeledEdge(String l) {
+  public LabeledEdge(EdgeType et, String l) {
     label = l;
+    type = et;
   }
 
   /**
@@ -33,6 +37,15 @@ public class LabeledEdge extends DefaultEdge {
    */
   public String getLabel() {
     return label;
+  }
+
+  /**
+   * Gets the type associated with this edge.
+   *
+   * @return edge type
+   */
+  public EdgeType getType() {
+    return type;
   }
 
   @Override

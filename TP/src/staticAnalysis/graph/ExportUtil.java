@@ -1,7 +1,7 @@
 package staticAnalysis.graph;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+
 
 import org.jgrapht.Graph;
 import org.jgrapht.ext.DOTExporter;
@@ -14,9 +14,11 @@ import org.jgrapht.ext.VertexNameProvider;
  * @author fmolina
  *
  */
+
+
 public class ExportUtil {
 
-  public static void dotExport(Graph<GraphNode, LabeledEdge> g, String filename) {
+  public static void dotExport2(Graph<GraphNode, LabeledEdge> g, String filename) {
     try {
       VertexNameProvider<GraphNode> vertexIdProvider = new VertexNameProvider<GraphNode>() {
         public String getVertexName(GraphNode cdgn) {
@@ -39,6 +41,38 @@ public class ExportUtil {
     } catch (IOException e) {
       System.out.println("Unable to export graph");
     }
+  }
+
+  public static String dotExport(Graph<GraphNode, LabeledEdge> g, String filename){
+    String res = "digraph model {\n\n";
+    for (GraphNode vertex : g.vertexSet()){
+      res += "STATE"+vertex.getId() + " [label=\""+vertex.toString()+"\"]" + "\n";
+    }
+    for (LabeledEdge edge : g.edgeSet()){
+      switch (edge.getType()){
+        case CFG: res += "STATE"+g.getEdgeSource(edge).getId()+" -> STATE"+ g.getEdgeTarget(edge).getId()+" [color=\"red\",label = \""+ edge.getLabel() + "\"]"+";\n";
+                  break;
+        case DDG: res += "STATE"+g.getEdgeSource(edge).getId()+" -> STATE"+ g.getEdgeTarget(edge).getId()+" [color=\"green\",label = \""+ edge.getLabel() + "\"]"+";\n";
+                  break;
+        default: res += "STATE"+g.getEdgeSource(edge).getId()+" -> STATE"+ g.getEdgeTarget(edge).getId()+" [color=\"blue\",label = \""+ edge.getLabel() + "\"]"+";\n";
+                  break;
+      }
+    }
+    res += "\n}";
+    try{
+      String path = "";
+      path =filename;
+      File file = new File(path);
+      file.createNewFile();
+      FileWriter fw = new FileWriter(file);
+      BufferedWriter bw = new BufferedWriter(fw);
+      bw.write(res);
+      bw.close();
+    }
+    catch(IOException e){
+      e.printStackTrace();
+    }
+    return res;
   }
 
 }

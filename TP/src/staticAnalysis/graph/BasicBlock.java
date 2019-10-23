@@ -51,7 +51,7 @@ public class BasicBlock extends GraphNode {
 
   @Override
   public String toString() {
-    String str = "[ ";
+    String str = "[";
     for (Statement stmt : statements) {
       if (stmt instanceof Conditional) {
         Conditional c = (Conditional) stmt;
@@ -64,7 +64,7 @@ public class BasicBlock extends GraphNode {
       }
     }
     str = str.substring(0, str.length() - 2);
-    str += " ]";
+    str += "]";
     return str;
   }
 

@@ -1,8 +1,7 @@
 package staticAnalysis;
 
 import miniJava.Program;
-import staticAnalysis.graph.ControlFlowGraph;
-import staticAnalysis.graph.GraphNode;
+import staticAnalysis.graph.*;
 import staticAnalysis.tree.Tree;
 
 /**
@@ -22,6 +21,9 @@ public class StaticAnalyser {
     cfg.getCdg().export();
     cfg.iterativeDataFlowAnalysis();
     cfg.getDdg().export();
+    ProgramDependenceGraph pdg = cfg.getPdg();
+    pdg.export();
+    pdg.printAllSlices();
   }
 
 }

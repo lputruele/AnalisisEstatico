@@ -167,7 +167,7 @@ public class ControlFlowGraph {
     // Add node Entry -> B1
     GraphNode entryBlock = basicBlocks.get(0);
     g.addVertex(entryBlock);
-    g.addEdge(EntryNode.get(), entryBlock);
+    g.addEdge(EntryNode.get(), entryBlock, new LabeledEdge(EdgeType.CFG));
     // Add nodes Bi -> Bj if and only if Bj can immediately follow Bi in some execution
     for (int i = 0; i < basicBlocks.size(); i++) {
       BasicBlock blockI = basicBlocks.get(i);
@@ -184,15 +184,15 @@ public class ControlFlowGraph {
         Statement fstStmtBlockJ = blockJ.getStatements().get(0);
         if (followsImmediately(lastStmtBlockI, fstStmtBlockJ, p)) {
           atLeastOneFollower = true;
-          LabeledEdge edge = new LabeledEdge();
+          LabeledEdge edge = new LabeledEdge(EdgeType.CFG);
           if (lastStmtBlockI.isControlTransferStatement())
-            edge = new LabeledEdge(getLabel(lastStmtBlockI, fstStmtBlockJ));
+            edge = new LabeledEdge(EdgeType.CFG, getLabel(lastStmtBlockI, fstStmtBlockJ));
           g.addEdge(blockI, blockJ, edge);
         }
       }
       if (!atLeastOneFollower) {
         // BlockI must go to the exit, i.e., Bi -> Exit
-        g.addEdge(blockI, ExitNode.get());
+        g.addEdge(blockI, ExitNode.get(), new LabeledEdge(EdgeType.CFG));
       }
     }
     System.out.println("Vertexs: " + g.vertexSet().size());
@@ -375,7 +375,7 @@ public class ControlFlowGraph {
       reversedCfg.g.addVertex(v);
     }
     for (LabeledEdge edge : g.edgeSet()) {
-      reversedCfg.g.addEdge(g.getEdgeTarget(edge), g.getEdgeSource(edge));
+      reversedCfg.g.addEdge(g.getEdgeTarget(edge), g.getEdgeSource(edge), new LabeledEdge(EdgeType.CFG));
     }
     return reversedCfg;
   }
@@ -390,10 +390,10 @@ public class ControlFlowGraph {
     for (GraphNode v : g.vertexSet()) {
       acfg.g.addVertex(v);
     }
-    acfg.g.addEdge(StartNode.get(), EntryNode.get(), new LabeledEdge(TRUE_LABEL));
-    acfg.g.addEdge(StartNode.get(), ExitNode.get(), new LabeledEdge(FALSE_LABEL));
+    acfg.g.addEdge(StartNode.get(), EntryNode.get(), new LabeledEdge(EdgeType.CFG,TRUE_LABEL));
+    acfg.g.addEdge(StartNode.get(), ExitNode.get(), new LabeledEdge(EdgeType.CFG,FALSE_LABEL));
     for (LabeledEdge edge : g.edgeSet()) {
-      acfg.g.addEdge(g.getEdgeSource(edge), g.getEdgeTarget(edge));
+      acfg.g.addEdge(g.getEdgeSource(edge), g.getEdgeTarget(edge), new LabeledEdge(EdgeType.CFG));
     }
     return acfg;
   }
@@ -411,6 +411,13 @@ public class ControlFlowGraph {
    */
   public DataDependenceGraph getDdg() {
     return new DataDependenceGraph(this);
+  }
+
+  /**
+   * Get the Program Dependence Graph
+   */
+  public ProgramDependenceGraph getPdg() {
+    return new ProgramDependenceGraph(this.getDdg(),this.getCdg());
   }
 
   /**
