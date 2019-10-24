@@ -71,7 +71,7 @@ public class DUPair {
 
   @Override
   public String toString() {
-    return "var: " + var + " pair: (" + definition.toString() + ", " + useString() + ")";
+    return "[var: " + var + " pair: (" + definition.toString() + ", " + useString() + ")]";
   }
 
   private String useString() {

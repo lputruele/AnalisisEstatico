@@ -2,13 +2,13 @@ package staticAnalysis.tree;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.jgrapht.ext.DOTExporter;
 import org.jgrapht.ext.VertexNameProvider;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
-import java.util.List;
-import java.util.LinkedList;
 
 /**
  * Generic class that implements a Tree
@@ -94,9 +94,9 @@ public class Tree<E> {
   /**
    * Returns true is s is an ancestor of t
    */
-  public boolean isAncestorOf(E s, E t){
+  public boolean isAncestorOf(E s, E t) {
     Node<E> curr = getNode(t);
-    while (curr != null){
+    while (curr != null) {
       if (curr.value.equals(s))
         return true;
       curr = curr.getParent();
@@ -107,10 +107,10 @@ public class Tree<E> {
   /**
    * Finds least common ancestor of s and t
    */
-  public E leastCommonAncestor(E s, E t){
+  public E leastCommonAncestor(E s, E t) {
     Node<E> curr = getNode(t);
-    while (curr != null){
-      if (isAncestorOf(curr.getValue(),s))
+    while (curr != null) {
+      if (isAncestorOf(curr.getValue(), s))
         return curr.getValue();
       curr = curr.getParent();
     }
@@ -120,9 +120,9 @@ public class Tree<E> {
   /**
    * Marks a node s as visited
    */
-  public void mark(E s){
-    if (getNode(s) != null){
-      //getNode(s).setVisited(true);
+  public void mark(E s) {
+    if (getNode(s) != null) {
+      // getNode(s).setVisited(true);
       markedNodes.add(s);
     }
   }
@@ -130,21 +130,21 @@ public class Tree<E> {
   /**
    * Get all marked nodes
    */
-  public List<E> getMarkedNodes(){
+  public List<E> getMarkedNodes() {
     return markedNodes;
   }
 
-  public void clearMarked(){
-    //System.out.println(markedNodes);
+  public void clearMarked() {
+    // System.out.println(markedNodes);
     markedNodes.clear();
   }
 
   /**
    * Marks back path from b to l
    */
-  public void markBackPath(E b, E l){
+  public void markBackPath(E b, E l) {
     Node<E> curr = getNode(b);
-    while (curr != null && !curr.value.equals(l)){
+    while (curr != null && !curr.value.equals(l)) {
       mark(curr.getValue());
       curr = curr.getParent();
     }
@@ -167,7 +167,7 @@ public class Tree<E> {
       };
       DOTExporter<Node<E>, DefaultEdge> exporter = new DOTExporter<Node<E>, DefaultEdge>(
           vertexIdProvider, vertexLabelProvider, null);
-      exporter.export(new FileWriter("tree.dot"), t);
+      exporter.export(new FileWriter("output/tree.dot"), t);
     } catch (IOException e) {
       System.out.println("Unable to export tree");
     }
@@ -216,7 +216,7 @@ public class Tree<E> {
       return value;
     }
 
-     /**
+    /**
      * Get visited
      */
     public boolean getVisited() {
