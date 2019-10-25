@@ -3,7 +3,7 @@ package staticAnalysis;
 import miniJava.Program;
 
 /**
- * This class represents the compiler.
+ * This the main class
  */
 public class MainClass {
 
@@ -11,7 +11,7 @@ public class MainClass {
     ProgramParser prog = new ProgramParser();
 
     if (args.length < 1) {
-      System.out.println("Usage: ./TPExe <nominal model path>");
+      System.out.println("Usage: ./TPExe <test example>");
     } else {
       System.out.println("Starting analysis of program " + args[args.length - 1]);
       System.out.println();

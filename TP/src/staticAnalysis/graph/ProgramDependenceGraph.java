@@ -40,17 +40,17 @@ public class ProgramDependenceGraph {
   public LinkedList<GraphNode> getBackwardStaticSlice(GraphNode p) {
     LinkedList<GraphNode> worklist = new LinkedList<GraphNode>();
     LinkedList<GraphNode> slice = new LinkedList<GraphNode>();
-    LinkedList<GraphNode> visited = new LinkedList<GraphNode>();
+    //LinkedList<GraphNode> visited = new LinkedList<GraphNode>();
     worklist.addFirst(p);
     while (!worklist.isEmpty()) {
       GraphNode curr = worklist.removeFirst();
-      visited.add(curr);
+      //visited.add(curr);
       for (LabeledEdge edge : g.edgeSet()) {
         GraphNode source = g.getEdgeSource(edge);
         GraphNode target = g.getEdgeTarget(edge);
-        if (target.equals(curr) && !visited.contains(source)) {
-          worklist.addLast(source);
-          slice.addLast(source);
+        if (target.equals(curr) && !slice.contains(source)) {
+          worklist.addFirst(source);
+          slice.addFirst(source);
         }
       }
     }
