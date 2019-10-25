@@ -1,12 +1,11 @@
 # AnalisisEstatico
-Proyecto de Analisis Estatico de Programas
+Proyecto de Analisis Estático de Programas
 
 To compile:
 * Go to /TP
 * Run the command : ant compile jar
 
 To run it:
-* Go to /TP/bin
-* Run the command : ./TPExe <path to test>
+* Run the script: ./analyze.sh tests/test1
 
-Tests are located on /TP/tests
+Ohter test programs are located on /TP/tests
