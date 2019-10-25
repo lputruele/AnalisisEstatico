@@ -8,4 +8,4 @@ To compile:
 To run it:
 * Run the script: ./analyze.sh tests/test1
 
-Ohter test programs are located on /TP/tests
+Other test programs are located on /TP/tests
