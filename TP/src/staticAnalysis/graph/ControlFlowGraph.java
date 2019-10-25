@@ -46,7 +46,9 @@ public class ControlFlowGraph {
     this.p = p;
     g = new DefaultDirectedGraph<GraphNode, LabeledEdge>(LabeledEdge.class);
     List<BasicBlock> basicBlocks = getBasicBlocks(p);
+    System.out.println("    Basic blocks: " + basicBlocks.size());
     buildGraph(basicBlocks, p);
+
   }
 
   /**
@@ -195,8 +197,8 @@ public class ControlFlowGraph {
         g.addEdge(blockI, ExitNode.get(), new LabeledEdge(EdgeType.CFG));
       }
     }
-    System.out.println("Vertexs: " + g.vertexSet().size());
-    System.out.println("Edges: " + g.edgeSet().size());
+    System.out.println("    Vertexs: " + g.vertexSet().size());
+    System.out.println("    Edges: " + g.edgeSet().size());
   }
 
   /**
@@ -375,7 +377,8 @@ public class ControlFlowGraph {
       reversedCfg.g.addVertex(v);
     }
     for (LabeledEdge edge : g.edgeSet()) {
-      reversedCfg.g.addEdge(g.getEdgeTarget(edge), g.getEdgeSource(edge), new LabeledEdge(EdgeType.CFG));
+      reversedCfg.g.addEdge(g.getEdgeTarget(edge), g.getEdgeSource(edge),
+          new LabeledEdge(EdgeType.CFG));
     }
     return reversedCfg;
   }
@@ -390,8 +393,8 @@ public class ControlFlowGraph {
     for (GraphNode v : g.vertexSet()) {
       acfg.g.addVertex(v);
     }
-    acfg.g.addEdge(StartNode.get(), EntryNode.get(), new LabeledEdge(EdgeType.CFG,TRUE_LABEL));
-    acfg.g.addEdge(StartNode.get(), ExitNode.get(), new LabeledEdge(EdgeType.CFG,FALSE_LABEL));
+    acfg.g.addEdge(StartNode.get(), EntryNode.get(), new LabeledEdge(EdgeType.CFG, TRUE_LABEL));
+    acfg.g.addEdge(StartNode.get(), ExitNode.get(), new LabeledEdge(EdgeType.CFG, FALSE_LABEL));
     for (LabeledEdge edge : g.edgeSet()) {
       acfg.g.addEdge(g.getEdgeSource(edge), g.getEdgeTarget(edge), new LabeledEdge(EdgeType.CFG));
     }
@@ -403,6 +406,8 @@ public class ControlFlowGraph {
    */
   public ControlDependenceGraph getCdg() {
     ControlFlowGraph acfg = getAugmentedCfg();
+    System.out.println("    Augmented CFG vertexs: " + acfg.g.vertexSet().size());
+    System.out.println("    Augmented CFG edges: " + acfg.g.edgeSet().size());
     return new ControlDependenceGraph(acfg, acfg.computePostDominatorsTree());
   }
 
@@ -417,7 +422,14 @@ public class ControlFlowGraph {
    * Get the Program Dependence Graph
    */
   public ProgramDependenceGraph getPdg() {
-    return new ProgramDependenceGraph(this.getDdg(),this.getCdg());
+    return new ProgramDependenceGraph(this.getDdg(), this.getCdg());
+  }
+
+  /**
+   * Get the Program Dependence Graph
+   */
+  public ProgramDependenceGraph getPdg(DataDependenceGraph ddg, ControlDependenceGraph cdg) {
+    return new ProgramDependenceGraph(ddg, cdg);
   }
 
   /**
@@ -468,7 +480,9 @@ public class ControlFlowGraph {
    * GEN, IN, OUT
    */
   public void iterativeDataFlowAnalysis() {
+    System.out.println("    Computing Gen and Kill sets");
     computeGenAndKillSets();
+    System.out.println("    Computing Reaching Defs");
     computeReachingDefs();
   }
 
@@ -590,5 +604,6 @@ public class ControlFlowGraph {
    */
   public void export() {
     ExportUtil.dotExport(g, "cfg.dot");
+    System.out.println("    Exported to file output/cfg.dot");
   }
 }

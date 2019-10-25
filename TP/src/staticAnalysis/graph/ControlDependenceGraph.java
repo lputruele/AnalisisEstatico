@@ -33,8 +33,6 @@ public class ControlDependenceGraph {
         s.add(edge);
       }
     }
-    System.out.println(acfg.g.edgeSet().size());
-    System.out.println(s.size());
     for (LabeledEdge edge : s) {
       GraphNode a = acfg.g.getEdgeSource(edge);
       GraphNode b = acfg.g.getEdgeTarget(edge);
@@ -44,10 +42,12 @@ public class ControlDependenceGraph {
         pdt.mark(a);
       }
       for (GraphNode n : pdt.getMarkedNodes()) {
-        g.addEdge(a, n, new LabeledEdge(EdgeType.CDG,edge.getLabel()));
+        g.addEdge(a, n, new LabeledEdge(EdgeType.CDG, edge.getLabel()));
       }
       pdt.clearMarked();
     }
+    System.out.println("    Vertexs: " + g.vertexSet().size());
+    System.out.println("    Edges: " + g.edgeSet().size());
   }
 
   /**
@@ -55,6 +55,7 @@ public class ControlDependenceGraph {
    */
   public void export() {
     ExportUtil.dotExport(g, "cdg.dot");
+    System.out.println("    Exported to file output/cdg.dot");
   }
 
 }

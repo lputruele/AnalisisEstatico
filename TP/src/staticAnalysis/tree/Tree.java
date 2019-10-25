@@ -135,7 +135,6 @@ public class Tree<E> {
   }
 
   public void clearMarked() {
-    // System.out.println(markedNodes);
     markedNodes.clear();
   }
 
@@ -168,6 +167,7 @@ public class Tree<E> {
       DOTExporter<Node<E>, DefaultEdge> exporter = new DOTExporter<Node<E>, DefaultEdge>(
           vertexIdProvider, vertexLabelProvider, null);
       exporter.export(new FileWriter("output/tree.dot"), t);
+      System.out.println("    Exported to file output/tree.dot");
     } catch (IOException e) {
       System.out.println("Unable to export tree");
     }
